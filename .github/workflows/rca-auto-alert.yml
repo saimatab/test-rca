@@ -1,0 +1,54 @@
+name: RCA Correlator - Auto Alert on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-rca-alert:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+      
+      - name: Trigger RCA Alert
+        run: |
+          curl -X POST http://localhost:8080/webhook/incident \
+            -H "Content-Type: application/json" \
+            -d '{
+              "status": "firing",
+              "alerts": [{
+                "status": "firing",
+                "labels": {
+                  "alertname": "CodeMergeAlert",
+                  "severity": "warning",
+                  "repository": "saimatab/test-rca"
+                },
+                "annotations": {
+                  "summary": "PR merged to main - triggering RCA analysis",
+                  "description": "Commit: ${{ steps.commit.outputs.sha }} by ${{ steps.commit.outputs.author }}",
+                  "commit_message": "${{ steps.commit.outputs.message }}"
+                },
+                "startsAt": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+                "endsAt": "0001-01-01T00:00:00Z"
+              }],
+              "groupLabels": {
+                "severity": "warning",
+                "service": "test-rca"
+              },
+              "commonLabels": {
+                "severity": "warning"
+              },
+              "externalURL": "https://github.com/saimatab/test-rca"
+            }'
+        env:
+          WEBHOOK_URL: http://localhost:8080/webhook/incident

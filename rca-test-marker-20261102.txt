@@ -1,0 +1,16 @@
+RCA Correlator E2E Test
+=======================
+
+Timestamp: 2026-11-02 11:48:31
+Test ID: rca-e2e-202611021148
+Repository: saimatab/test-rca
+Branch: rca-test-feature-202611021148
+
+Purpose:
+- Create feature branch
+- Generate PR for review
+- Merge to trigger alert
+- Correlate with Grafana alert
+- Generate RCA report
+
+This file marks the start of E2E testing pipeline.

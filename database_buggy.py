@@ -1,7 +1,7 @@
 """
 Database connection module with intentional bugs
 """
-
+bgguugg
 class DatabaseConnection:
     def __init__(self, host, port):
         # BUG #1: Missing null check on host
